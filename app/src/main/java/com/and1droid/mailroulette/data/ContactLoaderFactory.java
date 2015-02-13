@@ -5,20 +5,17 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
-import android.provider.ContactsContract;
 
-import static android.provider.ContactsContract.CommonDataKinds.Email;
-import static android.provider.ContactsContract.Contacts.Entity.DATA1;
-import static android.provider.ContactsContract.Contacts.Entity.DATA2;
-import static android.provider.ContactsContract.Contacts.Entity.DATA3;
-import static android.provider.ContactsContract.Contacts.Entity.DATA4;
-import static android.provider.ContactsContract.Contacts.Entity.MIMETYPE;
-import static android.provider.ContactsContract.Contacts.Entity.RAW_CONTACT_ID;
-import static android.provider.ContactsContract.Data.CONTENT_URI;
+import static android.provider.ContactsContract.Contacts.CONTENT_URI;
+import static android.provider.ContactsContract.Contacts.DISPLAY_NAME_PRIMARY;
+import static android.provider.ContactsContract.Contacts.LOOKUP_KEY;
+import static android.provider.ContactsContract.Contacts._ID;
+import static android.provider.ContactsContract.Contacts.PHOTO_THUMBNAIL_URI;
+import static android.provider.ContactsContract.Contacts.PHOTO_URI;
 
 public class ContactLoaderFactory {
 
-    public static Loader<Cursor> getEntityLoader(Context context) {
+    public static Loader<Cursor> getContactLoader(Context context) {
         return new CursorLoader(
                 context,
                 getUri(),
@@ -34,15 +31,15 @@ public class ContactLoaderFactory {
     }
 
     public static String[] getProjection() {
-        return new String[]{RAW_CONTACT_ID, DATA1,DATA2,DATA3,DATA4, MIMETYPE};
+        return new String[]{_ID, LOOKUP_KEY, DISPLAY_NAME_PRIMARY, PHOTO_URI, PHOTO_THUMBNAIL_URI, };
     }
 
     public static String getSelection() {
-        return MIMETYPE + " = ? or "+MIMETYPE + " = ?";
+        return null;
     }
 
     public static String[] getSelectionArgs() {
-        return new String[]{Email.CONTENT_ITEM_TYPE, ContactsContract.CommonDataKinds.Photo.CONTENT_ITEM_TYPE};
+        return null;
     }
 
     public static String getSortOrder() {

@@ -2,33 +2,21 @@ package com.and1droid.mailroulette;
 
 import android.app.Activity;
 import android.app.LoaderManager;
-import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.HashSet;
-import java.util.LinkedHashSet;
+import com.and1droid.mailroulette.data.CursorReader;
+import com.and1droid.mailroulette.data.EmailLoaderFactory;
+
 import java.util.Random;
 import java.util.Set;
-import java.util.TreeSet;
-
-import static android.provider.ContactsContract.CommonDataKinds.Email.ADDRESS;
-import static android.provider.ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE;
-import static android.provider.ContactsContract.Contacts.Data.MIMETYPE;
-import static android.provider.ContactsContract.Contacts.LOOKUP_KEY;
-import static android.provider.ContactsContract.Contacts._ID;
 
 
 public class ContactActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
-    private static final String[] PROJECTION = {ContactsContract.Contacts.Entity.RAW_CONTACT_ID,
-            ContactsContract.Contacts.Entity.DATA1,
-            ContactsContract.Contacts.Entity.MIMETYPE};
     private ContactDetailFragment contactDetailFragment;
 
     @Override
@@ -46,24 +34,12 @@ public class ContactActivity extends Activity implements LoaderManager.LoaderCal
 
     @Override
     public Loader<Cursor> onCreateLoader(int loaderId, Bundle args) {
-        return new CursorLoader(
-                this,
-                Uri.withAppendedPath(
-                        mContactUri,
-                        ContactsContract.Contacts.Entity.CONTENT_DIRECTORY,
-                        PROJECTION,
-                        MIMETYPE + " = ?",
-                        new String[]{CONTENT_ITEM_TYPE},
-                        null
-                );
+        return EmailLoaderFactory.getEmailListLoader(this);
     }
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Set<String> adresses = new HashSet<>();
-        while (data.moveToNext()) {
-            adresses.add(data.getString(data.getColumnIndex(ADDRESS)));
-        }
+        Set<String> adresses = CursorReader.getAdresses(data);
         Log.i(getClass().getSimpleName(), data.getCount() + " adresses trouvées en bd");
         Log.i(getClass().getSimpleName(), adresses.size() + " adresses uniques");
         int randomValue = new Random().nextInt(adresses.size());

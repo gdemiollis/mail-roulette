@@ -6,19 +6,18 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 
-import static android.provider.ContactsContract.Contacts.CONTENT_URI;
-import static android.provider.ContactsContract.Contacts.DISPLAY_NAME_PRIMARY;
-import static android.provider.ContactsContract.Contacts.LOOKUP_KEY;
-import static android.provider.ContactsContract.Contacts._ID;
-import static android.provider.ContactsContract.Contacts.PHOTO_THUMBNAIL_URI;
-import static android.provider.ContactsContract.Contacts.PHOTO_URI;
+import static android.provider.ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE;
+import static android.provider.ContactsContract.Contacts.Entity.CONTENT_DIRECTORY;
+import static android.provider.ContactsContract.Contacts.Entity.RAW_CONTACT_ID;
+import static android.provider.ContactsContract.Data.DATA1;
+import static android.provider.ContactsContract.Data.MIMETYPE;
 
 public class ContactDetailLoaderFactory {
 
-    public static Loader<Cursor> getContactLoader(Context context) {
+    public static Loader<Cursor> getContactDetailLoader(Context context, Contact contact) {
         return new CursorLoader(
                 context,
-                getUri(),
+                getUri(contact),
                 getProjection(),
                 getSelection(),
                 getSelectionArgs(),
@@ -26,20 +25,20 @@ public class ContactDetailLoaderFactory {
         );
     }
 
-    protected static Uri getUri() {
-        return CONTENT_URI;
+    protected static Uri getUri(Contact contact) {
+        return Uri.withAppendedPath(contact.getContactUri(), CONTENT_DIRECTORY);
     }
 
     public static String[] getProjection() {
-        return new String[]{_ID, LOOKUP_KEY, DISPLAY_NAME_PRIMARY, PHOTO_URI, PHOTO_THUMBNAIL_URI, };
+        return new String[]{RAW_CONTACT_ID, DATA1, MIMETYPE};
     }
 
     public static String getSelection() {
-        return null;
+        return MIMETYPE + " = ?";
     }
 
     public static String[] getSelectionArgs() {
-        return null;
+        return new String[]{CONTENT_ITEM_TYPE};
     }
 
     public static String getSortOrder() {
