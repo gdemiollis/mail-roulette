@@ -4,11 +4,13 @@ public class Address implements Comparable<Address> {
     private String lookupKey;
     private String address;
     private String name;
+    private String photoUri;
 
-    public Address(String lookupKey, String address, String name) {
+    public Address(String lookupKey, String address, String name, String photoUri) {
         this.lookupKey = lookupKey;
         this.address = address;
         this.name = name;
+        this.photoUri = photoUri;
     }
 
     public String getLookupKey() {
@@ -21,6 +23,10 @@ public class Address implements Comparable<Address> {
 
     public String getName() {
         return name;
+    }
+
+    public String getPhotoUri() {
+        return photoUri;
     }
 
     @Override

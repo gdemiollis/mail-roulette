@@ -10,7 +10,7 @@
     card_view:cardCornerRadius="10dp">
 
     <ImageView
-        android:id="@+id/info_text"
+        android:id="@+id/contact_image"
         android:src="@drawable/ic_launcher"
         android:scaleType="centerCrop"
         android:layout_width="match_parent"

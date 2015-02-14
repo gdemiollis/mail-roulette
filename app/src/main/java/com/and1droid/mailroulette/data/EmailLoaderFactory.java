@@ -54,10 +54,14 @@ public class EmailLoaderFactory {
     public static Set<Address> getAdresses(Cursor cursor) {
         Set<Address> adresses = new TreeSet<>();
         while (cursor.moveToNext()) {
-            Address address = new Address(getLookupKey(cursor), getAddress(cursor), getName(cursor));
+            Address address = new Address(getLookupKey(cursor), getAddress(cursor), getName(cursor), getPhotoUri(cursor));
             adresses.add(address);
         }
         return adresses;
+    }
+
+    private static String getPhotoUri(Cursor cursor) {
+        return CursorReader.getString(cursor, PHOTO_URI);
     }
 
     private static String getName(Cursor cursor) {
