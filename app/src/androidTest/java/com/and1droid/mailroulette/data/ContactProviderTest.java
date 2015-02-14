@@ -25,16 +25,21 @@ public class ContactProviderTest extends InstrumentationTestCase {
                 EmailLoaderFactory.getSelection(),
                 EmailLoaderFactory.getSelectionArgs(),
                 EmailLoaderFactory.getSortOrder());
-        assertEquals("content://com.android.contacts/data", EmailLoaderFactory.getUri().toString());
-        assertEquals(484, cursor.getCount());
-        assertEquals(3, cursor.getColumnCount());
+        assertEquals("content://com.android.contacts/data/emails", EmailLoaderFactory.getUri().toString());
+        assertEquals(483, cursor.getCount());
+        assertEquals(5, cursor.getColumnCount());
         String[] columnNames = cursor.getColumnNames();
         assertEquals("_id", columnNames[0]);
         assertEquals("lookup", columnNames[1]);
         assertEquals("data1", columnNames[2]);
-        Set<String> adresses = CursorReader.getAdresses(cursor);
-        assertEquals(422, adresses.size());
-        assertEquals("thierrysaudreau@gmail.com", adresses.iterator().next());
+        assertEquals("photo_uri", columnNames[3]);
+        assertEquals("display_name", columnNames[4]);
+        Set<Address> adresses = EmailLoaderFactory.getAdresses(cursor);
+        assertEquals(420, adresses.size());
+        Address address = adresses.iterator().next();
+        assertEquals("22804903-809b-4a29-8827-8112134f83a5@reply.linkedin.com", address.getAddress());
+        assertEquals("1088i77d83bb38bac7c3b", address.getLookupKey());
+        assertEquals("?tienne Savard via LinkedIn", address.getName());
     }
 
     public void testContactEntity() throws Exception {
@@ -46,7 +51,7 @@ public class ContactProviderTest extends InstrumentationTestCase {
                 EntityLoaderFactory.getSelectionArgs(),
                 EntityLoaderFactory.getSortOrder());
         assertEquals("content://com.android.contacts/data", EntityLoaderFactory.getUri().toString());
-        assertEquals(1044, cursor.getCount());
+        assertEquals(1043, cursor.getCount());
         assertEquals(6, cursor.getColumnCount());
         String[] columnNames = cursor.getColumnNames();
         assertEquals("raw_contact_id", columnNames[0]);
@@ -55,12 +60,12 @@ public class ContactProviderTest extends InstrumentationTestCase {
         assertEquals("data3", columnNames[3]);
         assertEquals("data4", columnNames[4]);
         assertEquals("mimetype", columnNames[5]);
-        Set<MyEntity> entities = CursorReader.getEntity(cursor);
-        assertEquals(1044, entities.size());
+        Set<MyEntity> entities = EntityLoaderFactory.getEntity(cursor);
+        assertEquals(1043, entities.size());
         Iterator<MyEntity> iterator = entities.iterator();
         MyEntity entity = iterator.next();
         assertEquals("philippe.gratton@gmail.com", entity.getData1());
-        assertEquals("3", entity.getData2());
+        assertEquals("0", entity.getData2());
         assertNull(entity.getData3());
         assertNull(entity.getData4());
         assertEquals("vnd.android.cursor.item/email_v2", entity.getMimeType());
@@ -71,12 +76,12 @@ public class ContactProviderTest extends InstrumentationTestCase {
 
     public void testListContacts() throws Exception {
         Cursor cursor = contentResolver.query(
-                ContactLoaderFactory.getUri(),
-                ContactLoaderFactory.getProjection(),
-                ContactLoaderFactory.getSelection(),
-                ContactLoaderFactory.getSelectionArgs(),
-                ContactLoaderFactory.getSortOrder());
-        assertEquals("content://com.android.contacts/contacts", ContactLoaderFactory.getUri().toString());
+                ContactListLoaderFactory.getUri(),
+                ContactListLoaderFactory.getProjection(),
+                ContactListLoaderFactory.getSelection(),
+                ContactListLoaderFactory.getSelectionArgs(),
+                ContactListLoaderFactory.getSortOrder());
+        assertEquals("content://com.android.contacts/contacts", ContactListLoaderFactory.getUri().toString());
         assertEquals(507, cursor.getCount());
         assertEquals(5, cursor.getColumnCount());
         String[] columnNames = cursor.getColumnNames();
@@ -85,18 +90,22 @@ public class ContactProviderTest extends InstrumentationTestCase {
         assertEquals("display_name", columnNames[2]);
         assertEquals("photo_uri", columnNames[3]);
         assertEquals("photo_thumb_uri", columnNames[4]);
-        Set<Contact> contacts = CursorReader.getContact(cursor);
-        assertEquals(507, contacts.size());
+        Set<Contact> contacts = ContactCursorReader.getContact(cursor);
+        assertEquals(449, contacts.size());
         Iterator<Contact> iterator = contacts.iterator();
         Contact contact = iterator.next();
-        assertEquals("Olivier Poissant", contact.getName());
-        assertEquals("content://com.android.contacts/contacts/lookup/1088i4cdecdfd8cf311b2/3137", contact.getContactUri().toString());
-        assertNull(contact.getPhoto());
-        assertNull(contact.getThumbnail());
+        contact = iterator.next();
+        contact = iterator.next();
+        contact = iterator.next();
+        assertEquals("Adélie Saudreau", contact.getName());
+        assertEquals("1088i76a31d50d21cad5.453ee%3Aadeliesaudreau%40gmail..com", contact.getLookupKey());
+        assertEquals("content://com.android.contacts/contacts/lookup/1088i76a31d50d21cad5.453ee%3Aadeliesaudreau%40gmail..com/2767", contact.getContactUri().toString());
+        assertEquals("content://com.android.contacts/contacts/2767/photo", contact.getPhoto());
+        assertEquals("content://com.android.contacts/contacts/2767/photo", contact.getThumbnail());
     }
 
     public void testListContactsWithEmail() throws Exception {
-        Contact contact = new Contact("Olivier Poissant", null, null, Uri.parse("content://com.android.contacts/contacts/lookup/1088i4cdecdfd8cf311b2/3137"));
+        Contact contact = new Contact("", "Olivier Poissant", null, null, Uri.parse("content://com.android.contacts/contacts/lookup/1088i4cdecdfd8cf311b2/3137"));
         Cursor cursor = contentResolver.query(
                 ContactDetailLoaderFactory.getUri(contact),
                 ContactDetailLoaderFactory.getProjection(),
@@ -105,14 +114,43 @@ public class ContactProviderTest extends InstrumentationTestCase {
                 ContactDetailLoaderFactory.getSortOrder());
         assertEquals("content://com.android.contacts/contacts/lookup/1088i4cdecdfd8cf311b2/3137/entities", ContactDetailLoaderFactory.getUri(contact).toString());
         assertEquals(1, cursor.getCount());
-        assertEquals(3, cursor.getColumnCount());
+        assertEquals(4, cursor.getColumnCount());
         String[] columnNames = cursor.getColumnNames();
-        assertEquals("raw_contact_id", columnNames[0]);
-        assertEquals("data1", columnNames[1]);
-        assertEquals("mimetype", columnNames[2]);
-        Set<String> adresses = CursorReader.getAdresses(cursor);
+        assertEquals("_id", columnNames[0]);
+        assertEquals("raw_contact_id", columnNames[1]);
+        assertEquals("data1", columnNames[2]);
+        assertEquals("mimetype", columnNames[3]);
+        Set<Address> adresses = EmailLoaderFactory.getAdresses(cursor);
         assertEquals(1, adresses.size());
-        assertEquals("olivier.poissant@mediacom.com", adresses.iterator().next());
+        Address address = adresses.iterator().next();
+        assertEquals("olivier.poissant@mediacom.com", address.getAddress());
+        assertEquals(Long.valueOf(3137), address.getLookupKey());
+    }
+
+    public void testFindContactsWithId_2767() throws Exception {
+        Cursor cursor = contentResolver.query(
+                ContactLoaderFactory.getUri(),
+                ContactLoaderFactory.getProjection(),
+                ContactLoaderFactory.getSelection(),
+                ContactLoaderFactory.getSelectionArgs("1088i76a31d50d21cad5.453ee%3Aadeliesaudreau%40gmail..com"),
+                ContactLoaderFactory.getSortOrder());
+        assertEquals("content://com.android.contacts/contacts", ContactLoaderFactory.getUri().toString());
+        assertEquals(1, cursor.getCount());
+        assertEquals(5, cursor.getColumnCount());
+        String[] columnNames = cursor.getColumnNames();
+        assertEquals("_id", columnNames[0]);
+        assertEquals("lookup", columnNames[1]);
+        assertEquals("display_name", columnNames[2]);
+        assertEquals("photo_uri", columnNames[3]);
+        assertEquals("photo_thumb_uri", columnNames[4]);
+        Set<Contact> contacts = ContactCursorReader.getContact(cursor);
+        assertEquals(1, contacts.size());
+        Iterator<Contact> iterator = contacts.iterator();
+        Contact contact = iterator.next();
+        assertEquals("Adélie Saudreau", contact.getName());
+        assertEquals("content://com.android.contacts/contacts/lookup/1088i76a31d50d21cad5.453ee%3Aadeliesaudreau%40gmail..com/2767", contact.getContactUri().toString());
+        assertEquals("content://com.android.contacts/contacts/2767/photo", contact.getPhoto());
+        assertEquals("content://com.android.contacts/contacts/2767/photo", contact.getThumbnail());
     }
 
 }

@@ -9,15 +9,20 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.and1droid.mailroulette.data.CursorReader;
+import com.and1droid.mailroulette.data.Address;
 import com.and1droid.mailroulette.data.EmailLoaderFactory;
 
 import java.util.Random;
 import java.util.Set;
+import java.util.TreeSet;
 
 
 public class ContactActivity extends Activity implements LoaderManager.LoaderCallbacks<Cursor> {
+    private static final int EMAIL_REQUEST_ID = 123;
+    private static final String EXTRA_LOOKUP_KEY = "EXTRA_LOOKUP_KEY";
+    private static final String EXTRA_ADDRESS = "EXTRA_ADDRESS";
     private ContactDetailFragment contactDetailFragment;
+    private Set<Address> adresses = new TreeSet<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,7 +34,7 @@ public class ContactActivity extends Activity implements LoaderManager.LoaderCal
                     .add(R.id.container, contactDetailFragment)
                     .commit();
         }
-        getLoaderManager().initLoader(0, null, this);
+        getLoaderManager().initLoader(EMAIL_REQUEST_ID, null, this);
     }
 
     @Override
@@ -39,17 +44,22 @@ public class ContactActivity extends Activity implements LoaderManager.LoaderCal
 
     @Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor data) {
-        Set<String> adresses = CursorReader.getAdresses(data);
-        Log.i(getClass().getSimpleName(), data.getCount() + " adresses trouvées en bd");
-        Log.i(getClass().getSimpleName(), adresses.size() + " adresses uniques");
+            Log.i(getClass().getSimpleName(), data.getCount() + " adresses trouvées en bd");
+                adresses = EmailLoaderFactory.getAdresses(data);
+                Log.i(getClass().getSimpleName(), adresses.size() + " adresses uniques");
+        Address randomAddress = getRandomAddress();
+        contactDetailFragment.updateFragment(randomAddress);
+
+    }
+
+    private Address getRandomAddress() {
         int randomValue = new Random().nextInt(adresses.size());
-        String randomEmail = adresses.toArray(new String[adresses.size()])[randomValue];
-        contactDetailFragment.setRandomEmail(randomEmail);
+        return adresses.toArray(new Address[adresses.size()])[randomValue];
     }
 
     @Override
     public void onLoaderReset(Loader<Cursor> loader) {
-
+        Log.i(getClass().getSimpleName(), "Qui suis-je?");
     }
 
 

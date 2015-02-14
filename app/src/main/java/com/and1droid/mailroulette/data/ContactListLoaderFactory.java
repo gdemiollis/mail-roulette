@@ -5,6 +5,11 @@ import android.content.CursorLoader;
 import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
+import android.provider.ContactsContract;
+import android.text.TextUtils;
+
+import java.util.Set;
+import java.util.TreeSet;
 
 import static android.provider.ContactsContract.Contacts.CONTENT_URI;
 import static android.provider.ContactsContract.Contacts.DISPLAY_NAME_PRIMARY;
@@ -13,15 +18,15 @@ import static android.provider.ContactsContract.Contacts.PHOTO_THUMBNAIL_URI;
 import static android.provider.ContactsContract.Contacts.PHOTO_URI;
 import static android.provider.ContactsContract.Contacts._ID;
 
-public class ContactLoaderFactory {
+public class ContactListLoaderFactory {
 
-    public static Loader<Cursor> getContactLoaderForLookup(Context context, String lookupKey) {
+    public static Loader<Cursor> ContactListLoaderFactory(Context context) {
         return new CursorLoader(
                 context,
                 getUri(),
                 getProjection(),
                 getSelection(),
-                getSelectionArgs(lookupKey),
+                getSelectionArgs(),
                 getSortOrder()
         );
     }
@@ -35,11 +40,11 @@ public class ContactLoaderFactory {
     }
 
     public static String getSelection() {
-        return LOOKUP_KEY + "=?";
+        return null;
     }
 
-    public static String[] getSelectionArgs(String lookupKey) {
-        return new String[]{"" + lookupKey};
+    public static String[] getSelectionArgs() {
+        return null;
     }
 
     public static String getSortOrder() {

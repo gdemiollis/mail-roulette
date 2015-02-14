@@ -7,6 +7,9 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
+import java.util.HashSet;
+import java.util.Set;
+
 import static android.provider.ContactsContract.CommonDataKinds.Email;
 import static android.provider.ContactsContract.Contacts.Entity.DATA1;
 import static android.provider.ContactsContract.Contacts.Entity.DATA2;
@@ -47,5 +50,34 @@ public class EntityLoaderFactory {
 
     public static String getSortOrder() {
         return null;
+    }
+
+    public static Set<MyEntity> getEntity(Cursor cursor) {
+        Set<MyEntity> entities = new HashSet<>();
+        while (cursor.moveToNext()) {
+            MyEntity myEntity = new MyEntity(getData1(cursor), getData2(cursor), getData3(cursor), getData4(cursor), getMimeType(cursor));
+            entities.add(myEntity);
+        }
+        return entities;
+    }
+
+    private static String getMimeType(Cursor cursor) {
+        return CursorReader.getString(cursor, MIMETYPE);
+    }
+
+    private static String getData1(Cursor cursor) {
+        return CursorReader.getString(cursor, DATA1);
+    }
+
+    private static String getData2(Cursor cursor) {
+        return CursorReader.getString(cursor, DATA2);
+    }
+
+    private static String getData3(Cursor cursor) {
+        return CursorReader.getString(cursor, DATA3);
+    }
+
+    private static String getData4(Cursor cursor) {
+        return CursorReader.getString(cursor, DATA4);
     }
 }

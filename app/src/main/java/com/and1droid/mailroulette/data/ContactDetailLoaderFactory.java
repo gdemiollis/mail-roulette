@@ -9,6 +9,7 @@ import android.net.Uri;
 import static android.provider.ContactsContract.CommonDataKinds.Email.CONTENT_ITEM_TYPE;
 import static android.provider.ContactsContract.Contacts.Entity.CONTENT_DIRECTORY;
 import static android.provider.ContactsContract.Contacts.Entity.RAW_CONTACT_ID;
+import static android.provider.ContactsContract.Data._ID;
 import static android.provider.ContactsContract.Data.DATA1;
 import static android.provider.ContactsContract.Data.MIMETYPE;
 
@@ -30,7 +31,7 @@ public class ContactDetailLoaderFactory {
     }
 
     public static String[] getProjection() {
-        return new String[]{RAW_CONTACT_ID, DATA1, MIMETYPE};
+        return new String[]{_ID, RAW_CONTACT_ID, DATA1, MIMETYPE};
     }
 
     public static String getSelection() {
